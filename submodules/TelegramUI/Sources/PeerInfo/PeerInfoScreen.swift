@@ -528,6 +528,9 @@ private enum PeerInfoSettingsSection {
     case username
     case addAccount
     case logout
+    
+    //Tommy: add custom action
+    case custom
 }
 
 private final class PeerInfoInteraction {
@@ -657,6 +660,9 @@ private enum SettingsSection: Int, CaseIterable {
     case advanced
     case extra
     case support
+    
+    //Tommy: add custom section
+    case custom
 }
 
 private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentationData: PresentationData, interaction: PeerInfoInteraction, isExpanded: Bool) -> [(AnyHashable, [PeerInfoScreenItem])] {
@@ -770,12 +776,19 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
         interaction.openSettings(.chatFolders)
     }))
     
+    //Tommy: add custom item
+    items[.custom]!.append(PeerInfoScreenDisclosureItem(id: 4, text: "My custom item here", icon: PresentationResourcesSettings.chatFolders, action: {
+        print("Custom item tapped!!")
+        interaction.openSettings(.custom)
+    }))
+    
     let notificationsWarning: Bool
     if let settings = data.globalSettings {
         notificationsWarning = shouldDisplayNotificationsPermissionWarning(status: settings.notificationAuthorizationStatus, suppressed:  settings.notificationWarningSuppressed)
     } else {
         notificationsWarning = false
     }
+    
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 0, label: notificationsWarning ? .badge("!", presentationData.theme.list.itemDestructiveColor) : .none, text: presentationData.strings.Settings_NotificationsAndSounds, icon: PresentationResourcesSettings.notifications, action: {
         interaction.openSettings(.notificationsAndSounds)
     }))
@@ -5364,6 +5377,8 @@ private final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewD
                         self.controller?.push(logoutOptionsController(context: self.context, navigationController: navigationController, canAddAccounts: accounts.count + 1 < maximumNumberOfAccounts, phoneNumber: phoneNumber))
                     }
                 }
+        case .custom:
+            self.controller?.push(CustomSettingsViewController(context: self.context))
         }
     }
     
