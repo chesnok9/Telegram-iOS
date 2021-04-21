@@ -16,25 +16,25 @@ import SearchBarNode
 import SearchUI
 import UndoUI
 
-private enum LanguageListSection: ItemListSectionId {
+public enum LanguageListSection: ItemListSectionId {
     case official
     case unofficial
 }
 
-private enum LanguageListEntryId: Hashable {
+public enum LanguageListEntryId: Hashable {
     case search
     case localization(String)
 }
 
-private enum LanguageListEntryType {
+public enum LanguageListEntryType {
     case official
     case unofficial
 }
 
-private enum LanguageListEntry: Comparable, Identifiable {
+public enum LanguageListEntry: Comparable, Identifiable {
     case localization(index: Int, info: LocalizationInfo?, type: LanguageListEntryType, selected: Bool, activity: Bool, revealed: Bool, editing: Bool)
     
-    var stableId: LanguageListEntryId {
+    public var stableId: LanguageListEntryId {
         switch self {
             case let .localization(index, info, _, _, _, _, _):
                 return .localization(info?.languageCode ?? "\(index)")
@@ -48,7 +48,7 @@ private enum LanguageListEntry: Comparable, Identifiable {
         }
     }
     
-    static func <(lhs: LanguageListEntry, rhs: LanguageListEntry) -> Bool {
+    public static func <(lhs: LanguageListEntry, rhs: LanguageListEntry) -> Bool {
        return lhs.index() < rhs.index()
     }
     
@@ -64,14 +64,14 @@ private enum LanguageListEntry: Comparable, Identifiable {
     }
 }
 
-private struct LocalizationListSearchContainerTransition {
+public struct LocalizationListSearchContainerTransition {
     let deletions: [ListViewDeleteItem]
     let insertions: [ListViewInsertItem]
     let updates: [ListViewUpdateItem]
     let isSearching: Bool
 }
 
-private func preparedLanguageListSearchContainerTransition(presentationData: PresentationData, from fromEntries: [LanguageListEntry], to toEntries: [LanguageListEntry], selectLocalization: @escaping (LocalizationInfo) -> Void, isSearching: Bool, forceUpdate: Bool) -> LocalizationListSearchContainerTransition {
+public func preparedLanguageListSearchContainerTransition(presentationData: PresentationData, from fromEntries: [LanguageListEntry], to toEntries: [LanguageListEntry], selectLocalization: @escaping (LocalizationInfo) -> Void, isSearching: Bool, forceUpdate: Bool) -> LocalizationListSearchContainerTransition {
     let (deleteIndices, indicesAndItems, updateIndices) = mergeListsStableWithUpdates(leftList: fromEntries, rightList: toEntries, allUpdated: forceUpdate)
     
     let deletions = deleteIndices.map { ListViewDeleteItem(index: $0, directionHint: nil) }
@@ -81,7 +81,7 @@ private func preparedLanguageListSearchContainerTransition(presentationData: Pre
     return LocalizationListSearchContainerTransition(deletions: deletions, insertions: insertions, updates: updates, isSearching: isSearching)
 }
 
-private final class LocalizationListSearchContainerNode: SearchDisplayControllerContentNode {
+public final class LocalizationListSearchContainerNode: SearchDisplayControllerContentNode {
     private let dimNode: ASDisplayNode
     private let listNode: ListView
     
@@ -184,7 +184,7 @@ private final class LocalizationListSearchContainerNode: SearchDisplayController
         self.presentationDataDisposable?.dispose()
     }
     
-    override func didLoad() {
+    public override func didLoad() {
         super.didLoad()
         
         self.dimNode.view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.dimTapGesture(_:))))
@@ -194,7 +194,7 @@ private final class LocalizationListSearchContainerNode: SearchDisplayController
         self.listNode.backgroundColor = theme.chatList.backgroundColor
     }
     
-    override func searchTextUpdated(text: String) {
+    public override func searchTextUpdated(text: String) {
         if text.isEmpty {
             self.searchQuery.set(.single(nil))
         } else {
@@ -227,7 +227,7 @@ private final class LocalizationListSearchContainerNode: SearchDisplayController
         }
     }
     
-    override func containerLayoutUpdated(_ layout: ContainerViewLayout, navigationBarHeight: CGFloat, transition: ContainedViewLayoutTransition) {
+    override public func containerLayoutUpdated(_ layout: ContainerViewLayout, navigationBarHeight: CGFloat, transition: ContainedViewLayoutTransition) {
         super.containerLayoutUpdated(layout, navigationBarHeight: navigationBarHeight, transition: transition)
         
         let topInset = navigationBarHeight
@@ -253,7 +253,7 @@ private final class LocalizationListSearchContainerNode: SearchDisplayController
     }
 }
 
-private struct LanguageListNodeTransition {
+public struct LanguageListNodeTransition {
     let deletions: [ListViewDeleteItem]
     let insertions: [ListViewInsertItem]
     let updates: [ListViewUpdateItem]
@@ -263,7 +263,7 @@ private struct LanguageListNodeTransition {
     let crossfade: Bool
 }
 
-private func preparedLanguageListNodeTransition(presentationData: PresentationData, from fromEntries: [LanguageListEntry], to toEntries: [LanguageListEntry], openSearch: @escaping () -> Void, selectLocalization: @escaping (LocalizationInfo) -> Void, setItemWithRevealedOptions: @escaping (String?, String?) -> Void, removeItem: @escaping (String) -> Void, firstTime: Bool, isLoading: Bool, forceUpdate: Bool, animated: Bool, crossfade: Bool) -> LanguageListNodeTransition {
+public func preparedLanguageListNodeTransition(presentationData: PresentationData, from fromEntries: [LanguageListEntry], to toEntries: [LanguageListEntry], openSearch: @escaping () -> Void, selectLocalization: @escaping (LocalizationInfo) -> Void, setItemWithRevealedOptions: @escaping (String?, String?) -> Void, removeItem: @escaping (String) -> Void, firstTime: Bool, isLoading: Bool, forceUpdate: Bool, animated: Bool, crossfade: Bool) -> LanguageListNodeTransition {
     let (deleteIndices, indicesAndItems, updateIndices) = mergeListsStableWithUpdates(leftList: fromEntries, rightList: toEntries, allUpdated: forceUpdate)
     
     let deletions = deleteIndices.map { ListViewDeleteItem(index: $0, directionHint: nil) }
