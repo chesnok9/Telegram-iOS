@@ -122,50 +122,11 @@ final class CustomSettingsViewControllerNode: ViewControllerTracingNode {
             guard let strongSelf = self else {
                 return
             }
-                        
-            var entries: [LanguageListEntry] = []
-            var activeLanguageCode: String?
-            if let localizationSettings = sharedData.entries[SharedDataKeys.localizationSettings] as? LocalizationSettings {
-                activeLanguageCode = localizationSettings.primaryComponent.languageCode
-            }
-            var existingIds = Set<String>()
             
             let localizationListState = (view.views[preferencesKey] as? PreferencesView)?.values[PreferencesKeys.localizationListState] as? LocalizationListState
-            if let localizationListState = localizationListState, !localizationListState.availableOfficialLocalizations.isEmpty {
-                strongSelf.currentListState = localizationListState
-                
-                let availableSavedLocalizations = localizationListState.availableSavedLocalizations.filter({ info in !localizationListState.availableOfficialLocalizations.contains(where: { $0.languageCode == info.languageCode }) })
-                if availableSavedLocalizations.isEmpty {
-                    updateCanStartEditing(nil)
-                } else {
-                    updateCanStartEditing(isEditing)
-                }
-                if !availableSavedLocalizations.isEmpty {
-                    for info in availableSavedLocalizations {
-                        if existingIds.contains(info.languageCode) {
-                            continue
-                        }
-                        existingIds.insert(info.languageCode)
-                        entries.append(.localization(index: entries.count, info: info, type: .unofficial, selected: info.languageCode == activeLanguageCode, activity: applyingCode == info.languageCode, revealed: revealedCode == info.languageCode, editing: isEditing))
-                    }
-                }
-                for info in localizationListState.availableOfficialLocalizations {
-                    if existingIds.contains(info.languageCode) {
-                        continue
-                    }
-                    existingIds.insert(info.languageCode)
-                    entries.append(.localization(index: entries.count, info: info, type: .official, selected: info.languageCode == activeLanguageCode, activity: applyingCode == info.languageCode, revealed: revealedCode == info.languageCode, editing: false))
-                }
-            } else {
-                for _ in 0 ..< 15 {
-                    entries.append(.localization(index: entries.count, info: nil, type: .official, selected: false, activity: false, revealed: false, editing: false))
-                }
-            }
-            
             let previousState = previousState.swap(localizationListState)
-            
-            let previousEntriesAndPresentationData = previousEntriesHolder.swap((entries, presentationData.theme, presentationData.strings))
-            let transition = preparedLanguageListNodeTransition(presentationData: presentationData, from: previousEntriesAndPresentationData?.0 ?? [], to: entries, openSearch: openSearch, selectLocalization: { [weak self] info in self?.selectLocalization(info) }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem, firstTime: previousEntriesAndPresentationData == nil, isLoading: entries.isEmpty, forceUpdate: previousEntriesAndPresentationData?.1 !== presentationData.theme || previousEntriesAndPresentationData?.2 !== presentationData.strings, animated: (previousEntriesAndPresentationData?.0.count ?? 0) >= entries.count, crossfade: (previousState == nil) != (localizationListState == nil))
+            let previousEntriesAndPresentationData = previousEntriesHolder.swap(([], presentationData.theme, presentationData.strings))
+            let transition = preparedLanguageListNodeTransition(presentationData: presentationData, from: previousEntriesAndPresentationData?.0 ?? [], to: [], openSearch: openSearch, selectLocalization: { [weak self] info in self?.selectLocalization(info) }, setItemWithRevealedOptions: setItemWithRevealedOptions, removeItem: removeItem, firstTime: previousEntriesAndPresentationData == nil, isLoading: false, forceUpdate: previousEntriesAndPresentationData?.1 !== presentationData.theme || previousEntriesAndPresentationData?.2 !== presentationData.strings, animated: false, crossfade: (previousState == nil) != (localizationListState == nil))
             strongSelf.enqueueTransition(transition)
         })
         self.updatedDisposable = synchronizedLocalizationListState(postbox: context.account.postbox, network: context.account.network).start()
@@ -203,7 +164,7 @@ final class CustomSettingsViewControllerNode: ViewControllerTracingNode {
         let (duration, curve) = listViewAnimationDurationAndCurve(transition: transition)
         let updateSizeAndInsets = ListViewUpdateSizeAndInsets(size: layout.size, insets: listInsets, duration: duration, curve: curve)
         
-        self.listNode.transaction(deleteIndices: [], insertIndicesAndItems: [], updateIndicesAndItems: [], options: [.Synchronous, .LowLatency], scrollToItem: nil, updateSizeAndInsets: updateSizeAndInsets, stationaryItemRange: nil, updateOpaqueState: nil, completion: { _ in })
+        //self.listNode.transaction(deleteIndices: [], insertIndicesAndItems: [], updateIndicesAndItems: [], options: [.Synchronous, .LowLatency], scrollToItem: nil, updateSizeAndInsets: updateSizeAndInsets, stationaryItemRange: nil, updateOpaqueState: nil, completion: { _ in })
         
         if !hadValidLayout {
             self.dequeueTransitions()
